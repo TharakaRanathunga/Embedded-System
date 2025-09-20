@@ -4,7 +4,7 @@
         {
             "label": "C++ Build & Run",
             "type": "shell",
-            "command": "g++ \"${file}\" -o \"${fileDirname}\\${fileBasenameNoExtension}.exe\" && \"${fileDirname}\\${fileBasenameNoExtension}.exe\"",
+            "command": "g++ \"${file}\" -o \"${fileDirname}\\${fileBasenameNoExtension}.exe\" -mconsole && \"${fileDirname}\\${fileBasenameNoExtension}.exe\"",
             "options": {
                 "shell": {
                     "executable": "cmd.exe",
@@ -26,3 +26,5 @@
         }
     ]
 }
+
+
