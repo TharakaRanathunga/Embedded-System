@@ -32,7 +32,7 @@ int main() {
         }
     }
 
-    cout << "\nThe Highest Temperature Recorded on " << get<0>(highestDay)
+    cout << "\nThe Highest Temperature Recorded on the day " << get<0>(highestDay)
          << " as " << get<1>(highestDay) << "C" << endl;
 
     return 0;
