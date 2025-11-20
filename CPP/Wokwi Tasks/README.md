@@ -10,6 +10,13 @@ Interrup - https://wokwi.com/projects/446530514373100545
 Burglary alarm - https://wokwi.com/projects/446532345475464193
 Weather station - https://wokwi.com/projects/
 
+Weather Station
+ https://wokwi.com/projects/443967058441973761
+
+
+
+ 
+
 
 
 
