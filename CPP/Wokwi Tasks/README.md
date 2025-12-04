@@ -13,6 +13,10 @@ Weather station - https://wokwi.com/projects/
 Weather Station
  https://wokwi.com/projects/443967058441973761
 
+ Weather Station with ESP32
+ https://wokwi.com/projects/449434662027888641
+ 
+
 
 
  
