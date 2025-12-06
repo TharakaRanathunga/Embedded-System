@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Station Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2a2a2b 0%, #48494f 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .data-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .data-card.temperature {
+            background: linear-gradient(135deg, #471317 0%, #ed0625 100%);
+            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.3);
+        }
+
+        .data-card.humidity {
+            background: linear-gradient(135deg, #15324c 0%, #175c60 100%);
+            box-shadow: 0 10px 30px rgba(79, 172, 254, 0.3);
+        }
+
+        .label {
+            font-size: 16px;
+            font-weight: 600;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .value {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .unit {
+            font-size: 18px;
+            opacity: 0.8;
+        }
+
+        .readings-table {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .readings-table h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-radius: 5px 5px 0 0;
+        }
+
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            color: #333;
+        }
+
+        table tr:hover {
+            background: #f0f0f0;
+        }
+
+        table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .device-info {
+            background: #e8f4f8;
+            border-left: 4px solid #00f2fe;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .device-info strong {
+            color: #4facfe;
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-size: 16px;
+        }
+
+        .error {
+            background: #ffe8e8;
+            border-left: 4px solid #f5576c;
+            padding: 15px;
+            border-radius: 5px;
+            color: #c33;
+            margin-bottom: 20px;
+        }
+
+        .update-time {
+            text-align: center;
+            color: #888;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .data-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .value {
+                font-size: 36px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Weather Station Dashboard</h1>
+        <p class="subtitle">Real-time sensor data from Wokwi</p>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div class="data-grid">
+            <div class="data-card temperature">
+                <div class="label">Temperature</div>
+                <div class="value" id="temperature">--</div>
+                <div class="unit">°C</div>
+            </div>
+            <div class="data-card humidity">
+                <div class="label">Humidity</div>
+                <div class="value" id="humidity">--</div>
+                <div class="unit">%</div>
+            </div>
+        </div>
+
+        <div class="readings-table">
+            <h2>📊 Latest Readings (Last 10)</h2>
+            <div id="tableContent" class="loading">Loading data...</div>
+        </div>
+
+        <div class="update-time">
+            Last updated: <span id="updateTime">--:--:--</span>
+        </div>
+    </div>
+
+    <script>
+        // Fetch data from the API
+        async function fetchData() {
+            try {
+                const response = await fetch('/api/sensor');
+                if (!response.ok) throw new Error('Failed to fetch data');
+                
+                const data = await response.json();
+                displayError(null);
+                displayData(data);
+            } catch (error) {
+                displayError('Error fetching data: ' + error.message);
+                console.error('Error:', error);
+            }
+        }
+
+        function displayData(data) {
+            if (!data || data.length === 0) {
+                displayError('No data available yet');
+                return;
+            }
+
+            // Get the latest reading
+            const latest = data[0];
+            document.getElementById('temperature').textContent = 
+                latest.temperature !== null ? latest.temperature.toFixed(2) : '--';
+            document.getElementById('humidity').textContent = 
+                latest.humidity !== null ? latest.humidity.toFixed(2) : '--';
+
+            // Update time
+            document.getElementById('updateTime').textContent = new Date().toLocaleTimeString();
+
+            // Display table with latest 10 readings
+            const tableData = data.slice(0, 10);
+            let tableHTML = `
+                <div class="device-info">
+                    <strong>Device ID:</strong> ${latest.device_id || 'Unknown'}
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Temperature (°C)</th>
+                            <th>Humidity (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            tableData.forEach(row => {
+                const time = new Date(row.timestamp).toLocaleString();
+                tableHTML += `
+                    <tr>
+                        <td>${time}</td>
+                        <td>${row.temperature !== null ? row.temperature.toFixed(2) : 'N/A'}</td>
+                        <td>${row.humidity !== null ? row.humidity.toFixed(2) : 'N/A'}</td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('tableContent').innerHTML = tableHTML;
+        }
+
+        function displayError(message) {
+            const errorDiv = document.getElementById('error');
+            if (message) {
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+            } else {
+                errorDiv.style.display = 'none';
+            }
+        }
+
+        // Fetch data on page load
+        fetchData();
+
+        // Auto-refresh every 2 seconds
+        setInterval(fetchData, 2000);
+    </script>
+</body>
+</html>
