@@ -56,7 +56,7 @@ const mqttClient = mqtt.connect(MQTT_BROKER, {
 });
 
 mqttClient.on('connect', () => {
-  console.log(' MQTT connected to broker:', MQTT_BROKER);
+  console.log('MQTT connected to broker:', MQTT_BROKER);
   mqttClient.subscribe(MQTT_TOPIC, (err) => {
     if (err) {
       console.error('Failed to subscribe:', err.message);
