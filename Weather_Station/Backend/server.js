@@ -79,7 +79,7 @@ mqttClient.on('message', (topic, message) => {
     const deviceId   = data.device_id || 'station_unknown';
     const temperature = data.temperature ?? null;
     const humidity    = data.humidity ?? null;
-    const timestamp   = data.timestamp || new Date().toISOString();
+    const timestamp   = new Date().toISOString(); // Use current server time
 
     const query = `
       INSERT INTO measurements (device_id, timestamp, temperature, humidity)
@@ -126,7 +126,7 @@ app.post('/api/sensor', (req, res) => {
 
 // Get latest 100 records
 app.get('/api/sensor', (req, res) => {
-  db.all('SELECT * FROM measurements ORDER BY timestamp DESC LIMIT 100', [], (err, rows) => {
+  db.all('SELECT * FROM measurements ORDER BY id DESC LIMIT 100', [], (err, rows) => {
     if (err) return res.status(500).json({ error: 'Failed to read data' });
     res.json(rows);
   });
