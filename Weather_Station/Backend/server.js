@@ -1,37 +1,6 @@
-// const express = require('express');
-// const app = express();
-// const port = 3000;
-// const db = require('./database');
-
-// app.use(express.json()); 
-
-// app.get('/api/sensor', (req, res) => {
-//  res.json({
-//     temperature: 909,
-//     humidity: 50,
-//     status: "OK"
-//  });
-// });
-
-
-// app.post('/api/sensor', (req, res) => {
-//     const { temperature, humidity, status } = req.body;  
-
-//     res.json({
-//         message: "Sensor data received successfully!",
-//         received: {
-//             temperature,
-//             humidity,
-//             status
-//         }
-//     });
-// });
-
 // app.listen(port, () => {
 //  console.log(`Server running at http://localhost:${port}/`);
 // });
-
-
 
 
 
@@ -43,13 +12,11 @@ const db = require('./database');
 const mqtt = require('mqtt');
 
 // MQTT CONFIGURATION
-// Use MQTT URL without port in the string, and let the client handle port
 const MQTT_BROKER = 'mqtt://test.mosquitto.org';   // <-- matches Wokwi broker
 const MQTT_TOPIC  = 'iot/weather/station1';        // <-- matches Wokwi topic
 
 // Create MQTT client
 // port 1883 is the default for mqtt:// so this can be omitted,
-// for clarity.
 const mqttClient = mqtt.connect(MQTT_BROKER, {
   port: 1883,
   protocol: 'mqtt',
@@ -105,7 +72,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// HTTP POST endpoint (optional – for testing without MQTT)
+// HTTP POST endpoint
 app.post('/api/sensor', (req, res) => {
   const { device_id, temperature, humidity, timestamp } = req.body;
   const time = timestamp || new Date().toISOString();
