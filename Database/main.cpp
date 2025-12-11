@@ -1,4 +1,3 @@
-// Minimal utility to create a SQLite database with a Tasks table for school assignments.
 #include <iostream>
 #include "sqlite3.h"
 
@@ -109,7 +108,7 @@ int main() {
 		return 1;
 	}
 
-	// Seed required rows; INSERT OR REPLACE makes reruns idempotent.
+	
 	const char *insertSql =
 		"INSERT OR REPLACE INTO Tasks (id, name, description) VALUES "
 		"(1, 'Dtabase', 'Create a database for school assignments');"
@@ -156,11 +155,7 @@ int main() {
 	}
 
 	// Query to list all assignments with their related tasks and courses
-	// SELECT a.id, t.name AS task_name, a.id_course AS course_name
-	// FROM Assignments a
-	// JOIN Tasks t ON a.id_task = t.id;
-
-	/*
+		
 	const char *querySql =
 		"SELECT a.id, t.name AS task_name, a.id_course AS course_name "
 		"FROM Assignments a "
@@ -182,15 +177,10 @@ int main() {
 	} else {
 		std::cerr << "Failed to prepare query: " << sqlite3_errmsg(db) << "\n" << std::flush;
 	}
-	*/
+	
 
 	// Query to show all completions with assignment details and task names
-	// SELECT c.id, c.time, c.id_assignment, t.name AS task_name
-	// FROM Completion c
-	// JOIN Assignments a ON c.id_assignment = a.id
-	// JOIN Tasks t ON a.id_task = t.id;
-
-	/*
+		
 	const char *completionQuery =
 		"SELECT c.id, c.time, c.id_assignment, t.name AS task_name "
 		"FROM Completion c "
@@ -214,15 +204,10 @@ int main() {
 	} else {
 		std::cerr << "Failed to prepare completion query: " << sqlite3_errmsg(db) << "\n" << std::flush;
 	}
-	*/
+	
 
 	// Query to list students with their courses and grades
-	// SELECT s.name AS student_name, c.name AS course_name, cr.grade, cr.credits
-	// FROM Credits cr
-	// JOIN Students s ON cr.id_student = s.id
-	// JOIN Courses c ON cr.id_course = c.id;
-
-	/*
+		
 	const char *studentGradesQuery =
 		"SELECT s.name AS student_name, c.name AS course_name, cr.grade, cr.credits "
 		"FROM Credits cr "
@@ -246,16 +231,10 @@ int main() {
 	} else {
 		std::cerr << "Failed to prepare student grades query: " << sqlite3_errmsg(db) << "\n" << std::flush;
 	}
-	*/
+	
 
 	// Query to find all tasks completed by students
-	// SELECT s.name AS student_name, t.name AS task_name, c.time
-	// FROM Completion c
-	// JOIN Students s ON c.id_student = s.id
-	// JOIN Assignments a ON c.id_assignment = a.id
-	// JOIN Tasks t ON a.id_task = t.id;
-
-	/*
+		
 	const char *completedTasksQuery =
 		"SELECT s.name AS student_name, t.name AS task_name, c.time "
 		"FROM Completion c "
@@ -279,14 +258,10 @@ int main() {
 	} else {
 		std::cerr << "Failed to prepare completed tasks query: " << sqlite3_errmsg(db) << "\n" << std::flush;
 	}
-	*/
+	
 
 	// Query to show courses and the number of assignments in each
-	// SELECT a.id_course AS course_name, COUNT(*) AS assignment_count
-	// FROM Assignments a
-	// GROUP BY a.id_course;
-
-	/*
+	
 	const char *courseAssignmentsQuery =
 		"SELECT a.id_course AS course_name, COUNT(*) AS assignment_count "
 		"FROM Assignments a "
@@ -307,15 +282,10 @@ int main() {
 	} else {
 		std::cerr << "Failed to prepare course assignments query: " << sqlite3_errmsg(db) << "\n" << std::flush;
 	}
-	*/
+	
 
 	// Query to find courses without assignments using LEFT JOIN and WHERE IS NULL
-	// SELECT c.name AS course_name, c.description
-	// FROM Courses c
-	// LEFT JOIN Assignments a ON c.name = a.id_course
-	// WHERE a.id IS NULL;
-
-	/*
+		
 	const char *coursesWithoutAssignmentsQuery =
 		"SELECT c.name AS course_name, c.description "
 		"FROM Courses c "
@@ -337,7 +307,7 @@ int main() {
 	} else {
 		std::cerr << "Failed to prepare courses without assignments query: " << sqlite3_errmsg(db) << "\n" << std::flush;
 	}
-	*/
+	
 
 	// Query to show all tables in the database
 	const char *showTablesQuery = "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;";
@@ -355,14 +325,9 @@ int main() {
 		std::cerr << "Failed to query tables: " << sqlite3_errmsg(db) << "\n" << std::flush;
 	}
 
-	/*
+	
 	// Query to find assignments completed late (after '12.00 2025-01-10')
-	// SELECT c.id_assignment, t.name AS task_name, c.time
-	// FROM Completion c
-	// JOIN Assignments a ON c.id_assignment = a.id
-	// JOIN Tasks t ON a.id_task = t.id
-	// WHERE c.time > '12.00 2025.01.10';
-
+	
 	const char *lateAssignmentsQuery =
 		"SELECT c.id_assignment, t.name AS task_name, c.time "
 		"FROM Completion c "
@@ -388,12 +353,7 @@ int main() {
 	}
 
 	// Query for Course Performance Summary
-	// SELECT c.name AS course_name, COUNT(DISTINCT cr.id_student) AS total_students, 
-	//        AVG(cr.grade) AS average_grade, SUM(CAST(cr.credits AS INTEGER)) AS total_credits
-	// FROM Courses c
-	// JOIN Credits cr ON c.id = cr.id_course
-	// GROUP BY c.name;
-
+	
 	const char *coursePerformanceQuery =
 		"SELECT c.name AS course_name, COUNT(DISTINCT cr.id_student) AS total_students, "
 		"AVG(cr.grade) AS average_grade, SUM(CAST(cr.credits AS INTEGER)) AS total_credits "
@@ -418,7 +378,7 @@ int main() {
 	} else {
 		std::cerr << "Failed to prepare course performance query: " << sqlite3_errmsg(db) << "\n" << std::flush;
 	}
-	*/
+	
 
 	std::cout << "\nDatabase initialized and Tasks table is ready in '" << dbPath << "'.\n";
 	sqlite3_close(db);
