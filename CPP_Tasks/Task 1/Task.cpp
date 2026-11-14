@@ -12,7 +12,7 @@ int main() {
 
     tuple<string, double> highestDay = make_tuple(days[0], temperatures[0]);
 
-    cout << "\nTemperature of the Week:\n\n";
+    cout << "\nTemperature of the Week: \n";
     
     for (size_t i = 0; i < days.size(); i++) {  //Prints each day, temp and category
         cout << days[i] << ": " << temperatures[i] << "C - ";

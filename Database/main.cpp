@@ -284,7 +284,7 @@ int main() {
 	}
 	
 
-	// Query to find courses without assignments using LEFT JOIN and WHERE IS NULL
+	// Query to find courses without assignments using LEFT JOIN
 		
 	const char *coursesWithoutAssignmentsQuery =
 		"SELECT c.name AS course_name, c.description "

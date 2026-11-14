@@ -204,7 +204,7 @@
         </div>
 
         <div class="readings-table">
-            <h2>📊 Latest Readings (Last 10)</h2>
+            <h2>Latest Readings (Last 10)</h2>
             <div id="tableContent" class="loading">Loading data...</div>
         </div>
 
@@ -214,7 +214,7 @@
     </div>
 
     <script>
-        // Fetch data from the API
+        // Data from the API
         async function fetchData() {
             try {
                 const response = await fetch('/api/sensor');
@@ -235,7 +235,7 @@
                 return;
             }
 
-            // Get the latest reading
+            // Latest reading
             const latest = data[0];
             document.getElementById('temperature').textContent = 
                 latest.temperature !== null ? latest.temperature.toFixed(2) : '--';
@@ -245,7 +245,7 @@
             // Update time
             document.getElementById('updateTime').textContent = new Date().toLocaleTimeString();
 
-            // Display table with latest 10 readings
+            //History
             const tableData = data.slice(0, 10);
             let tableHTML = `
                 <div class="device-info">
@@ -255,7 +255,7 @@
                     <thead>
                         <tr>
                             <th>Time</th>
-                            <th>Temperature (°C)</th>
+                            <th>Temperature (C)</th>
                             <th>Humidity (%)</th>
                         </tr>
                     </thead>

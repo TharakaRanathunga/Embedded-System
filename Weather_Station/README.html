@@ -1,0 +1,681 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 IoT Weather Station - README</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        h1, h2, h3 {
+            color: #222;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            overflow-x: auto;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background: #f2f2f2;
+        }
+
+        blockquote {
+            border-left: 4px solid #999;
+            padding-left: 15px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+<h1>ESP32 IoT Weather Station</h1>
+<h2>Table of Contents</h2>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#wokwi-simulation">Wokwi Simulation</a></li>
+<li><a href="#features">Features</a></li>
+<li><a href="#system-architecture">System Architecture</a></li>
+<li><a href="#technologies-used">Technologies Used</a></li>
+<li><a href="#hardware-and-components">Hardware and Components</a></li>
+<li><a href="#software-dependencies">Software Dependencies</a></li>
+<li><a href="#project-structure">Project Structure</a></li>
+<li><a href="#prerequisites">Prerequisites</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#configuration">Configuration</a></li>
+<li><a href="#running-the-project">Running the Project</a></li>
+<li><a href="#web-dashboard">Web Dashboard</a></li>
+<li><a href="#mqtt-communication">MQTT Communication</a></li>
+<li><a href="#rest-api">REST API</a></li>
+<li><a href="#database">Database</a></li>
+<li><a href="#temperature-indicators">Temperature Indicators</a></li>
+<li><a href="#example-sensor-data">Example Sensor Data</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+<li><a href="#future-improvements">Future Improvements</a></li>
+<li><a href="#maintainer">Maintainer</a></li>
+</ul>
+<hr>
+<h2>Overview and Purpose</h2>
+<p>The <strong>ESP32 IoT Weather Station</strong> is an IoT-based weather monitoring project developed and simulated using <strong>Wokwi</strong>.</p>
+<p>The project uses an ESP32 with a DHT22 sensor to measure temperature and humidity. The ESP32 sends the sensor measurements through Wi-Fi using the MQTT communication protocol.</p>
+<p>A Node.js backend receives the MQTT messages and stores the measurements in an SQLite database. The backend also provides a REST API that is used by a web dashboard to display the collected weather data.</p>
+<p>The project demonstrates how an IoT device can collect sensor data, communicate through MQTT, store data in a database, and display the information through a web interface.</p>
+<hr>
+<h2>Wokwi Simulation</h2>
+<p>The ESP32 weather station is simulated using Wokwi.</p>
+<p><strong>Wokwi Project:</strong> <a href="https://wokwi.com/projects/449580644297769985">Open the ESP32 Weather Station simulation</a></p>
+<hr>
+<h2>Features</h2>
+<ul>
+<li>Temperature and humidity measurement using a DHT22 sensor.</li>
+<li>ESP32-based IoT device.</li>
+<li>Wokwi simulation support.</li>
+<li>Wi-Fi connectivity.</li>
+<li>MQTT communication.</li>
+<li>SQLite database for storing sensor measurements.</li>
+<li>Node.js and Express backend.</li>
+<li>REST API for sensor data.</li>
+<li>Web dashboard for visualizing sensor measurements.</li>
+<li>Dashboard displays the latest temperature and humidity.</li>
+<li>Dashboard displays the latest 10 sensor readings.</li>
+<li>Dashboard automatically refreshes every 2 seconds.</li>
+<li>16x2 I2C LCD display for temperature and status.</li>
+<li>Three LEDs indicate the temperature range.</li>
+<li>Error handling for MQTT, database, and API operations.</li>
+</ul>
+<hr>
+<h2>System Architecture</h2>
+<p>The overall data flow of the project is:</p>
+<pre><code class="language-text">+----------------------+
+| ESP32 + DHT22 Sensor |
++----------+-----------+
+           |
+           | Wi-Fi
+           v
++----------------------+
+|    MQTT Broker       |
+| test.mosquitto.org   |
++----------+-----------+
+           |
+           | MQTT Topic
+           | iot/weather/station1
+           v
++----------------------+
+| Node.js Backend      |
+| Express + MQTT       |
++----------+-----------+
+           |
+           v
++----------------------+
+| SQLite Database      |
+| sensors.db           |
++----------+-----------+
+           |
+           | REST API
+           v
++----------------------+
+| Web Dashboard        |
+| HTML + CSS + JS      |
++----------------------+
+</code></pre>
+<h3>Data Flow</h3>
+<ol>
+<li>The DHT22 sensor measures temperature and humidity.</li>
+<li>The ESP32 reads the sensor values.</li>
+<li>The ESP32 displays the temperature on the LCD.</li>
+<li>LEDs indicate the current temperature range.</li>
+<li>The ESP32 creates an MQTT message containing the sensor data.</li>
+<li>The message is published to the MQTT broker.</li>
+<li>The Node.js backend subscribes to the MQTT topic.</li>
+<li>The backend receives and parses the MQTT message.</li>
+<li>The sensor measurement is stored in SQLite.</li>
+<li>The web dashboard requests data from the REST API.</li>
+<li>The dashboard displays the latest measurements and recent history.</li>
+</ol>
+<hr>
+<h2>Technologies Used</h2>
+<table>
+<thead>
+<tr>
+<th>Technology</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ESP32</td>
+<td>IoT microcontroller</td>
+</tr>
+<tr>
+<td>DHT22</td>
+<td>Temperature and humidity sensor</td>
+</tr>
+<tr>
+<td>Wokwi</td>
+<td>ESP32 and sensor simulation</td>
+</tr>
+<tr>
+<td>C++ / Arduino</td>
+<td>ESP32 programming</td>
+</tr>
+<tr>
+<td>MQTT</td>
+<td>IoT messaging protocol</td>
+</tr>
+<tr>
+<td>Mosquitto MQTT Broker</td>
+<td>MQTT message broker</td>
+</tr>
+<tr>
+<td>Node.js</td>
+<td>Backend runtime</td>
+</tr>
+<tr>
+<td>Express.js</td>
+<td>REST API and web server</td>
+</tr>
+<tr>
+<td>SQLite</td>
+<td>Database</td>
+</tr>
+<tr>
+<td>HTML</td>
+<td>Dashboard structure</td>
+</tr>
+<tr>
+<td>CSS</td>
+<td>Dashboard styling</td>
+</tr>
+<tr>
+<td>JavaScript</td>
+<td>Dashboard data handling</td>
+</tr>
+<tr>
+<td>Fetch API</td>
+<td>Communication between dashboard and backend</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Hardware and Components</h2>
+<p>The project uses the following components in the Wokwi simulation:</p>
+<h3>ESP32</h3>
+<p>The ESP32 is the main microcontroller. It connects to Wi-Fi, reads the DHT22 sensor, controls the LCD and LEDs, and publishes sensor data through MQTT.</p>
+<h3>DHT22 Sensor</h3>
+<p>The DHT22 measures:</p>
+<ul>
+<li>Temperature</li>
+<li>Relative humidity</li>
+</ul>
+<p>The sensor is connected to GPIO pin <code>15</code>.</p>
+<h3>16x2 I2C LCD</h3>
+<p>The LCD displays the current temperature and a temperature status message.</p>
+<p>The ESP32 uses:</p>
+<ul>
+<li>SDA: GPIO <code>21</code></li>
+<li>SCL: GPIO <code>22</code></li>
+<li>I2C address: <code>0x27</code></li>
+</ul>
+<h3>LEDs</h3>
+<p>Three LEDs are used to indicate temperature conditions:</p>
+<ul>
+<li>Red LED: temperature above 30°C</li>
+<li>Yellow LED: temperature from 20°C to 30°C</li>
+<li>Cyan LED: temperature below 20°C</li>
+</ul>
+<h3>Wokwi Wi-Fi</h3>
+<p>The simulation uses the Wokwi network:</p>
+<pre><code class="language-text">SSID: Wokwi-GUEST
+Password: empty
+</code></pre>
+<hr>
+<h2>Software Dependencies</h2>
+<h3>Backend Dependencies</h3>
+<p>The Node.js backend uses the following packages:</p>
+<pre><code class="language-json">{
+  &quot;cors&quot;: &quot;^2.8.5&quot;,
+  &quot;express&quot;: &quot;^5.1.0&quot;,
+  &quot;mqtt&quot;: &quot;^5.14.1&quot;,
+  &quot;sqlite3&quot;: &quot;^5.1.7&quot;
+}
+</code></pre>
+<p>These dependencies provide:</p>
+<ul>
+<li><strong>Express</strong> — web server and REST API.</li>
+<li><strong>CORS</strong> — Cross-Origin Resource Sharing support.</li>
+<li><strong>MQTT</strong> — communication with the MQTT broker.</li>
+<li><strong>SQLite3</strong> — connection to the SQLite database.</li>
+</ul>
+<h3>ESP32 Libraries</h3>
+<p>The ESP32 code uses:</p>
+<ul>
+<li><code>WiFi.h</code></li>
+<li><code>WiFiClient.h</code></li>
+<li><code>PubSubClient.h</code></li>
+<li><code>DHTesp.h</code></li>
+<li><code>LiquidCrystal_I2C.h</code></li>
+<li><code>Wire.h</code></li>
+</ul>
+<p>Some of these libraries are provided by the ESP32/Arduino environment, while others are external libraries used for MQTT, DHT22, and LCD functionality.</p>
+<hr>
+<h2>Project Structure</h2>
+<p>A simplified project structure is:</p>
+<pre><code class="language-text">weather-station/
+│
+├── server.js
+├── database.js
+├── package.json
+├── sensors.db
+├── index.html
+└── ESP32 Wokwi code
+</code></pre>
+<h3>Main Files</h3>
+<h4><code>server.js</code></h4>
+<p>The main Node.js backend.</p>
+<p>It:</p>
+<ul>
+<li>Connects to the MQTT broker.</li>
+<li>Subscribes to the weather station MQTT topic.</li>
+<li>Receives sensor messages.</li>
+<li>Stores MQTT data in SQLite.</li>
+<li>Provides REST API endpoints.</li>
+<li>Serves the web dashboard files.</li>
+</ul>
+<h4><code>database.js</code></h4>
+<p>Creates and connects to the SQLite database.</p>
+<p>It creates the <code>measurements</code> table if it does not already exist.</p>
+<h4><code>package.json</code></h4>
+<p>Contains the Node.js project information and backend dependencies.</p>
+<h4><code>sensors.db</code></h4>
+<p>SQLite database file used to store sensor measurements.</p>
+<h4><code>index.html</code></h4>
+<p>Contains the web dashboard interface.</p>
+<p>The dashboard uses HTML, CSS, and JavaScript to display the sensor data received from the backend API.</p>
+<hr>
+<h2>Prerequisites</h2>
+<p>Before running the project, install or have access to:</p>
+<ol>
+<li><strong>Node.js and npm</strong></li>
+<li><strong>Wokwi</strong> for running the ESP32 simulation</li>
+<li>A web browser such as Chrome, Firefox, Edge, or Safari</li>
+<li>Internet access for the MQTT connection</li>
+</ol>
+<p>The project does not require a physical ESP32 board when using the Wokwi simulation.</p>
+<hr>
+<h2>Installation Instructions</h2>
+<h3>Step 1: Download or Clone the Project</h3>
+<p>Open the project folder in a terminal.</p>
+<h3>Step 2: Install Node.js Dependencies</h3>
+<p>Run:</p>
+<pre><code class="language-bash">npm install
+</code></pre>
+<p>This installs the dependencies defined in <code>package.json</code>.</p>
+<h3>Step 3: Check the Configuration</h3>
+<p>The ESP32 and Node.js backend must use the same MQTT broker and topic.</p>
+<p>The project uses:</p>
+<pre><code class="language-text">MQTT Broker: test.mosquitto.org
+MQTT Port: 1883
+MQTT Topic: iot/weather/station1
+</code></pre>
+<h3>Step 4: Start the Backend</h3>
+<p>Run:</p>
+<pre><code class="language-bash">node server.js
+</code></pre>
+<p>If the server starts successfully, the terminal displays:</p>
+<pre><code class="language-text">Server running on port 3000
+</code></pre>
+<p>The MQTT connection should also display messages indicating that the backend connected to the broker and subscribed to the topic.</p>
+<hr>
+<h2>Configuration</h2>
+<h3>MQTT Configuration</h3>
+<p>The backend uses:</p>
+<pre><code class="language-text">mqtt://test.mosquitto.org
+</code></pre>
+<p>with port:</p>
+<pre><code class="language-text">1883
+</code></pre>
+<p>The MQTT topic is:</p>
+<pre><code class="language-text">iot/weather/station1
+</code></pre>
+<p>The ESP32 uses the same broker, port, and topic.</p>
+<h3>ESP32 Configuration</h3>
+<p>The Wokwi ESP32 connects using:</p>
+<pre><code class="language-text">SSID: Wokwi-GUEST
+Password: empty (No password required)
+</code></pre>
+<p>The MQTT configuration in the ESP32 code is:</p>
+<pre><code class="language-cpp">const char* mqtt_server = &quot;test.mosquitto.org&quot;;
+const int mqtt_port = 1883;
+const char* mqtt_topic = &quot;iot/weather/station1&quot;;
+</code></pre>
+<hr>
+<h2>Running the Project</h2>
+<h3>1. Start the Node.js Backend</h3>
+<p>From the project directory:</p>
+<pre><code class="language-bash">node server.js
+</code></pre>
+<h3>2. Start the Wokwi Simulation</h3>
+<p>Open the ESP32 project in Wokwi and start the simulation.</p>
+<p>The ESP32 will:</p>
+<ol>
+<li>Connect to Wokwi Wi-Fi.</li>
+<li>Connect to the MQTT broker.</li>
+<li>Read temperature and humidity from the DHT22.</li>
+<li>Update the LCD.</li>
+<li>Control the LEDs.</li>
+<li>Publish sensor data through MQTT.</li>
+</ol>
+<p>The ESP32 publishes a new measurement approximately every <strong>5 seconds</strong>.</p>
+<h3>3. Open the Dashboard</h3>
+<p>Once the Node.js server is running, open the dashboard through the local server.</p>
+<p>For example:</p>
+<pre><code class="language-text">http://localhost:3000/
+</code></pre>
+<p>The dashboard will request sensor data from:</p>
+<pre><code class="language-text">/api/sensor
+</code></pre>
+<p>and display the results in the browser.</p>
+<hr>
+<h2>Web Dashboard</h2>
+<p>The project includes a web dashboard for visualizing the weather station data.</p>
+<p>The dashboard is built using:</p>
+<ul>
+<li>HTML</li>
+<li>CSS</li>
+<li>JavaScript</li>
+<li>Fetch API</li>
+</ul>
+<h3>Dashboard Layout</h3>
+<p>The dashboard contains:</p>
+<h4>Temperature Card</h4>
+<p>Displays the latest temperature reading in degrees Celsius.</p>
+<p>Example:</p>
+<pre><code class="language-text">Temperature
+24.50 °C
+</code></pre>
+<h4>Humidity Card</h4>
+<p>Displays the latest humidity reading.</p>
+<p>Example:</p>
+<pre><code class="language-text">Humidity
+55.20 %
+</code></pre>
+<h4>Latest Readings Table</h4>
+<p>The dashboard displays the <strong>latest 10 sensor readings</strong>.</p>
+<p>The table contains:</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Time</td>
+<td>Date and time of the measurement</td>
+</tr>
+<tr>
+<td>Temperature</td>
+<td>Temperature measurement in °C</td>
+</tr>
+<tr>
+<td>Humidity</td>
+<td>Humidity measurement in %</td>
+</tr>
+</tbody></table>
+<p>The device ID of the latest reading is also displayed.</p>
+<h3>Automatic Refresh</h3>
+<p>The dashboard automatically calls the API every <strong>2 seconds</strong>:</p>
+<pre><code class="language-javascript">setInterval(fetchData, 2000);
+</code></pre>
+<p>This allows newly stored measurements to appear on the dashboard without manually refreshing the browser.</p>
+<h3>Error Handling</h3>
+<p>If the dashboard cannot retrieve data from the backend, an error message is displayed.</p>
+<p>It also reports when no sensor data is available yet.</p>
+<h3>Responsive Design</h3>
+<p>The dashboard uses CSS media queries so that the layout adapts to smaller screens.</p>
+<p>On smaller screens, the temperature and humidity cards are displayed in a single column.</p>
+<hr>
+<h2>MQTT Communication</h2>
+<p>MQTT is used to transfer sensor data from the ESP32 to the Node.js backend.</p>
+<h3>MQTT Broker</h3>
+<pre><code class="language-text">test.mosquitto.org
+</code></pre>
+<h3>Port</h3>
+<pre><code class="language-text">1883
+</code></pre>
+<h3>Topic</h3>
+<pre><code class="language-text">iot/weather/station1
+</code></pre>
+<h3>Device ID</h3>
+<p>The ESP32 identifies itself as:</p>
+<pre><code class="language-text">station_esp32_1
+</code></pre>
+<h3>Example MQTT Payload</h3>
+<p>The ESP32 sends data in JSON format:</p>
+<pre><code class="language-json">{
+  &quot;device_id&quot;: &quot;station_esp32_1&quot;,
+  &quot;temperature&quot;: 24.50,
+  &quot;humidity&quot;: 55.20,
+  &quot;timestamp&quot;: &quot;2025-12-04T00:00:00Z&quot;
+}
+</code></pre>
+<p>The Node.js backend receives the message and parses the JSON data.</p>
+<p>The backend then inserts the device ID, temperature, humidity, and a server-generated timestamp into the SQLite database.</p>
+<blockquote>
+<p><strong>Note:</strong> The MQTT handler in <code>server.js</code> currently uses the Node.js server&#39;s current time for the database timestamp instead of using the timestamp supplied by the ESP32.</p>
+</blockquote>
+<hr>
+<h2>REST API</h2>
+<p>The Node.js backend provides REST API endpoints for accessing and inserting sensor data.</p>
+<h3>Get Sensor Measurements</h3>
+<p><strong>Endpoint:</strong></p>
+<pre><code class="language-http">GET /api/sensor
+</code></pre>
+<p>This endpoint returns the latest 100 measurements from the database.</p>
+<p>Example:</p>
+<pre><code class="language-bash">curl http://localhost:3000/api/sensor
+</code></pre>
+<p>The dashboard uses this endpoint to retrieve the sensor data.</p>
+<h3>Insert Sensor Measurement</h3>
+<p><strong>Endpoint:</strong></p>
+<pre><code class="language-http">POST /api/sensor
+</code></pre>
+<p>Example JSON request:</p>
+<pre><code class="language-json">{
+  &quot;device_id&quot;: &quot;station_esp32_1&quot;,
+  &quot;temperature&quot;: 24.50,
+  &quot;humidity&quot;: 55.20
+}
+</code></pre>
+<p>Example using JavaScript:</p>
+<pre><code class="language-javascript">fetch(&#39;/api/sensor&#39;, {
+    method: &#39;POST&#39;,
+    headers: {
+        &#39;Content-Type&#39;: &#39;application/json&#39;
+    },
+    body: JSON.stringify({
+        device_id: &#39;station_esp32_1&#39;,
+        temperature: 24.50,
+        humidity: 55.20
+    })
+});
+</code></pre>
+<p>The API stores the submitted measurement in the SQLite database.</p>
+<hr>
+<h2>Database</h2>
+<p>The project uses <strong>SQLite</strong> to store sensor measurements.</p>
+<p>The database file is:</p>
+<pre><code class="language-text">sensors.db
+</code></pre>
+<p>The database contains a table named:</p>
+<pre><code class="language-text">measurements
+</code></pre>
+<h3>Database Schema</h3>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>INTEGER</td>
+<td>Unique automatically generated ID</td>
+</tr>
+<tr>
+<td><code>device_id</code></td>
+<td>TEXT</td>
+<td>Identifier of the ESP32 device</td>
+</tr>
+<tr>
+<td><code>timestamp</code></td>
+<td>DATETIME</td>
+<td>Time associated with the measurement</td>
+</tr>
+<tr>
+<td><code>temperature</code></td>
+<td>REAL</td>
+<td>Temperature measurement</td>
+</tr>
+<tr>
+<td><code>humidity</code></td>
+<td>REAL</td>
+<td>Humidity measurement</td>
+</tr>
+</tbody></table>
+<p>The table is automatically created by <code>database.js</code> if it does not already exist.</p>
+<hr>
+<h2>Temperature Indicators</h2>
+<p>The ESP32 uses the temperature measurement to control the LEDs and LCD status.</p>
+<table>
+<thead>
+<tr>
+<th>Temperature</th>
+<th>LED</th>
+<th>LCD Status</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Below 20°C</td>
+<td>Cyan</td>
+<td><code>COLD! &lt;20C</code></td>
+</tr>
+<tr>
+<td>20°C – 30°C</td>
+<td>Yellow</td>
+<td><code>NORMAL</code></td>
+</tr>
+<tr>
+<td>Above 30°C</td>
+<td>Red</td>
+<td><code>HOT! &gt;30C</code></td>
+</tr>
+</tbody></table>
+<p>For example, if the measured temperature is:</p>
+<pre><code class="language-text">32°C
+</code></pre>
+<p>the red LED is turned on and the LCD displays:</p>
+<pre><code class="language-text">Temp: 32°C
+HOT! &gt;30C
+</code></pre>
+<hr>
+<h2>Example Sensor Data</h2>
+<p>A typical measurement stored by the backend could look like:</p>
+<pre><code class="language-json">{
+  &quot;id&quot;: 1,
+  &quot;device_id&quot;: &quot;station_esp32_1&quot;,
+  &quot;timestamp&quot;: &quot;2025-12-04T12:30:00.000Z&quot;,
+  &quot;temperature&quot;: 24.50,
+  &quot;humidity&quot;: 55.20
+}
+</code></pre>
+<p>The dashboard uses these values to display the latest measurement and the recent reading history.</p>
+<hr>
+<h2>Troubleshooting</h2>
+<h3>Backend Does Not Start</h3>
+<p>Make sure Node.js is installed and run:</p>
+<pre><code class="language-bash">npm install
+</code></pre>
+<p>Then start the backend:</p>
+<pre><code class="language-bash">node server.js
+</code></pre>
+<h3>MQTT Does Not Connect</h3>
+<p>Check that:</p>
+<ul>
+<li>The ESP32 and Node.js backend use the same MQTT broker.</li>
+<li>The MQTT topic is exactly:</li>
+</ul>
+<pre><code class="language-text">iot/weather/station1
+</code></pre>
+<ul>
+<li>The Wokwi simulation has an internet connection.</li>
+</ul>
+<h3>If No Data Appears on the Dashboard</h3>
+<p>Check the following:</p>
+<ol>
+<li>The Node.js server is running.</li>
+<li>The Wokwi simulation is running.</li>
+<li>The ESP32 is connected to Wi-Fi.</li>
+<li>The ESP32 is connected to MQTT.</li>
+<li>The backend is subscribed to the correct topic.</li>
+<li>Sensor data is being inserted into SQLite.</li>
+<li>The browser can access:</li>
+</ol>
+<pre><code class="language-text">http://localhost:3000/api/sensor
+</code></pre>
+<h3>Dashboard Shows &quot;No Data Available Yet&quot;</h3>
+<p>This normally means that the database does not contain any measurements yet.</p>
+<p>Start the Wokwi simulation and wait for the ESP32 to publish sensor data.</p>
+<h3>DHT22 Reading Fails</h3>
+<p>If the serial monitor displays:</p>
+<pre><code class="language-text">DHT read failed!
+</code></pre>
+<p>check that the DHT22 is correctly configured and connected to the expected GPIO pin.</p>
+<hr>
+<h2>Future Improvements</h2>
+<p>Possible future improvements include:</p>
+<ul>
+<li>Add filtering by date and time.</li>
+<li>Support multiple ESP32 weather stations.</li>
+<li>Add user authentication.</li>
+<li>Add API input validation.</li>
+<li>Add data export functionality.</li>
+<li>Add automated backend tests.</li>
+<li>Add more detailed charts to the dashboard.</li>
+<li>Add cloud deployment.</li>
+<li>Improve MQTT security by using authenticated and encrypted communication.</li>
+</ul>
+<hr>
+<h2>Maintainer</h2>
+<p>I. Tharaka Ranathunga maintain this project and it was done as a component of course work under Embedded Systems Course.</p>
+<hr>
+
+</body>
+</html>
